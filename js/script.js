@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // class cards
 
     class MenuCard {
-        constructor (imgSrc, imgAlt, subtitle, description, price, parent) {
+        constructor (imgSrc, imgAlt, subtitle, description, price, parent, ...classes) {
             this.imgSrc = imgSrc;
             this.imgAlt = imgAlt;
             this.subtitle = subtitle;
@@ -148,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.transfer = 27;
             this.changeToUAH();
             this.parent = document.querySelector(parent);
+            this.classes = classes;
         }
 
         changeToUAH() {
@@ -155,8 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         render() {
+            console.log(this.classes);
             const newCard = document.createElement('div');
-            newCard.classList.add('menu__item');
+            newCard.classList.add('menu__item', ...this.classes);
             newCard.innerHTML =
                 `<img src="${this.imgSrc}" alt="${this.imgAlt}">
                 <h3 class="menu__item-subtitle">${this.subtitle}</h3>
@@ -196,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Меню "Постное"',
         'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
         430/27,
-        '.menu .container'
+        '.menu .container',
+        'hot', 'sale', 'nice'
     ).render();
 });
