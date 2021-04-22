@@ -1,3 +1,5 @@
+'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
     // tabs
     const tabs = document.querySelectorAll('.tabheader__item'),
@@ -221,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 display: block;
                 margin: 0 auto;
             `;
-            // form.append(statusMessage);
             form.insertAdjacentElement('afterend', statusMessage);
 
             const request = new XMLHttpRequest();
