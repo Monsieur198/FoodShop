@@ -210,10 +210,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data
+        });
+
+        return await res.json();
+    };
+
+    function bindPostData(form) {
         form.addEventListener('submit', (evt) => {
             evt.preventDefault();
 
@@ -227,17 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(form);
 
-            const object = {};
-            formData.forEach((value, key) => object[key] = value);
+            // const object = {};
+            // formData.forEach((value, key) => object[key] = value);
 
-            fetch('server.php', {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'aplication/json'
-                },
-                body: JSON.stringify(object)
-            })
-            .then(data => data.text())
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
+
+            postData('http://localhost:3000/requests', json)
             .then(data => {
                 console.log(data);
                 showThanksModal(message.success);
@@ -275,4 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
             hideModal();
         }, 4000);
     }
+
+    fetch('http://localhost:3000/menu')
+        .then(data => data.json())
+        .then(res => console.log(res));
 });
