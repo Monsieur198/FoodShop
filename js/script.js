@@ -289,14 +289,12 @@ document.addEventListener('DOMContentLoaded', () => {
         slidesField = slidesWrapper.querySelector('.offer__slider-inner'),
         width = window.getComputedStyle(slidesWrapper).width;
 
-    let slideIndex = +currentCounter.textContent,
-        offset = +width.slice(0, -2) * (slideIndex - 1);
+    let slideIndex = +currentCounter.textContent;
 
     totalCounter.textContent = getZero(slides.length);
 
     slidesField.style.cssText = `width: ${100 * slides.length}%; display: flex; transition: 0.5s all;`;
     slidesWrapper.style.overflow = 'hidden';
-    slidesField.style.transform = `translateX(-${offset}px)`;
 
     slides.forEach(slide => slide.style.width = width);
 
@@ -320,10 +318,16 @@ document.addEventListener('DOMContentLoaded', () => {
     sliderTab.append(indicators);
 
     function slideTo(n) {
+        (n < 1) ? slideIndex = slides.length : n > slides.length ? slideIndex = 1 : slideIndex = n;
+        const offset = makeNum(width) * (slideIndex - 1);
         slidesField.style.transform = `translateX(-${offset}px)`;
         dots.forEach(item => item.style.opacity = 0.5);
-        dots[n-1].style.opacity = 1;
-        currentCounter.textContent = getZero(n);
+        dots[slideIndex-1].style.opacity = 1;
+        currentCounter.textContent = getZero(slideIndex);
+    }
+
+    function makeNum(str) {
+        return +str.replace(/\D/g, '');
     }
 
     for (let i = 0; i < slides.length; i++) {
@@ -344,37 +348,104 @@ document.addEventListener('DOMContentLoaded', () => {
             opacity: .5;
             transition: opacity .6s ease;
         `;
-        if (i === slideIndex - 1) {
-            dot.style.opacity = 1;
-        }
         indicators.append(dot);
         dots.push(dot);
-        dot.addEventListener('click', () => {
-            slideIndex = i + 1;
-            offset = +width.slice(0, -2) * (slideIndex - 1);
-            slideTo(slideIndex);
+        dot.addEventListener('click', () => slideTo(i + 1));
+    }
+
+    slideTo(slideIndex);
+
+    next.addEventListener('click', () => slideTo(++slideIndex));
+
+    prev.addEventListener('click', () => slideTo(--slideIndex));
+
+    // calc
+
+    const result = document.querySelector('.calculating__result span');
+
+    let sex = localStorage.getItem('sex') ? localStorage.getItem('sex') : 'female',
+        ratio = localStorage.getItem('ratio') ? localStorage.getItem('ratio') : 1.375,
+        height = localStorage.getItem('height') ? localStorage.getItem('height') : 0,
+        weight = localStorage.getItem('weight') ? localStorage.getItem('weight') : 0,
+        age = localStorage.getItem('age') ? localStorage.getItem('age') : 0;
+
+    function calcTotal() {
+        if (!height || !weight || !age ) {
+            result.textContent = '____';
+            return;
+        }
+
+        if (sex === 'female') {
+            result.textContent = ((447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age)) * ratio).toFixed(0);
+        } else {
+            result.textContent = ((88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age)) * ratio).toFixed(0);
+        }
+    }
+
+    calcTotal();
+
+    function getStaticInfo(selector, activeClass) {
+        const elements = document.querySelectorAll(`${selector}`);
+
+        elements.forEach(elem => {
+            elem.classList.remove(activeClass);
+            if (elem.getAttribute('data-ratio') === ratio || elem.getAttribute('id') === sex) {
+                elem.classList.add(activeClass);
+            }
+
+            elem.addEventListener('click', (evt) => {
+                if (evt.target.getAttribute('data-ratio')) {
+                    ratio = +evt.target.getAttribute('data-ratio');
+                    localStorage.setItem('ratio', +evt.target.getAttribute('data-ratio'));
+                } else {
+                    sex = evt.target.getAttribute('id');
+                    localStorage.setItem('sex', evt.target.getAttribute('id'));
+                }
+    
+                elements.forEach(elem => elem.classList.remove(activeClass));
+                evt.target.classList.add(activeClass);
+    
+                calcTotal();
+            });       
         });
     }
 
-    next.addEventListener('click', () => {
-        slideIndex++;
-        if (slideIndex > slides.length) {
-            slideIndex = 1;
-            offset = 0;
-        } else {
-            offset += +width.slice(0, -2);
-        }
-        slideTo(slideIndex);
-    });
+    getStaticInfo('#gender div', 'calculating__choose-item_active');
+    getStaticInfo('.calculating__choose_big div', 'calculating__choose-item_active');
 
-    prev.addEventListener('click', () => {
-        slideIndex--;
-        if (slideIndex < 1) {
-            slideIndex = slides.length;
-            offset = +width.slice(0, -2) * (slides.length - 1);
-        } else {
-            offset -= +width.slice(0, -2);
+    function getDynamicInfo(selector) {
+        const input = document.querySelector(selector);
+        if (localStorage.getItem(selector.slice(1)) && localStorage.getItem(selector.slice(1)) != 0) {
+            input.value = +localStorage.getItem(selector.slice(1));
         }
-        slideTo(slideIndex);
-    });
+
+        input.addEventListener('input', () => {
+            if (input.value.match(/\D/g)) {
+                input.style.border = '2px solid red';
+            } else {
+                input.style.border = '';
+            }
+
+            switch(input.getAttribute('id')) {
+                case 'height':
+                    height = +input.value;
+                    localStorage.setItem('height', +input.value);
+                    break;
+                case 'weight':
+                    weight = +input.value;
+                    localStorage.setItem('weight', +input.value);
+                    break;
+                case 'age':
+                    age = +input.value;
+                    localStorage.setItem('age', +input.value);
+                    break;    
+            }
+
+            calcTotal();
+        });        
+    }
+
+    getDynamicInfo('#height');
+    getDynamicInfo('#weight');
+    getDynamicInfo('#age');
 });
