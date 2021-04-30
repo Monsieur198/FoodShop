@@ -1,7 +1,6 @@
 {
   "name": "food",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,8 +15,13 @@
     "url": "https://github.com/Monsieur198/FoodShop/issues"
   },
   "homepage": "https://github.com/Monsieur198/FoodShop#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack": "^5.36.1",
+    "webpack-cli": "^4.6.0"
+  },
   "dependencies": {
     "json-server": "^0.16.3"
-  }
+  },
+  "keywords": [],
+  "description": ""
 }
