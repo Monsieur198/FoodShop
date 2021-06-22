@@ -8,7 +8,7 @@ function calc() {
         age = localStorage.getItem('age') ? localStorage.getItem('age') : 0;
 
     function calcTotal() {
-        if (!height || !weight || !age ) {
+        if (!(+height) || !(+weight) || !(+age)) {
             result.textContent = '____';
             return;
         }
